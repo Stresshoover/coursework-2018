@@ -2,12 +2,12 @@
 
 #include "RB.h"
 
-// ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ñ†Ð²ÐµÑ‚Ð° Ð²ÐµÑ€ÑˆÐ¸Ð½Ñ‹
+// Ïðîâåðêà öâåòà âåðøèíû
 int is_red(p_RB_node root) {
     return root && root->red == 1;
 }
 
-// Ð¤ÑƒÐ½ÐºÑ†Ð¸Ñ Ð¼Ð°Ð»Ð¾Ð³Ð¾ Ð¿Ð¾Ð²Ð¾Ñ€Ð¾Ñ‚Ð°, dir - Ð½Ð°Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ð²Ñ€Ð°Ñ‰ÐµÐ½Ð¸Ñ (Ð»ÐµÐ²Ñ‹Ð¹ Ð¿Ð¾Ð²Ð¾Ñ€Ð¾Ñ‚ - dir = 0):
+// Ôóíêöèÿ ìàëîãî ïîâîðîòà, dir - íàïðàâëåíèå âðàùåíèÿ (ëåâûé ïîâîðîò - dir = 0):
 p_RB_node RB_single_rot(p_RB_node root, int dir) {
     p_RB_node save = root->link[!dir];
 
@@ -20,27 +20,27 @@ p_RB_node RB_single_rot(p_RB_node root, int dir) {
     return save;
 }
 
-// Ð‘Ð¾Ð»ÑŒÑˆÐ¾Ðµ Ð²Ñ€Ð°Ñ‰ÐµÐ½Ð¸Ðµ
+// Áîëüøîå âðàùåíèå
 p_RB_node RB_double_rot(p_RB_node root, int dir) {
     root->link[!dir] = RB_single_rot(root->link[!dir], !dir);
 
     return RB_single_rot(root, dir);
 }
 
-// Ð¡Ð¾Ð·Ð´Ð°Ð½Ð¸Ðµ Ð²ÐµÑ€ÑˆÐ¸Ð½Ñ‹ Ñ Ð·Ð°Ð´Ð°Ð½Ð½Ñ‹Ð¼ ÐºÐ»ÑŽÑ‡Ð¾Ð¼
+// Ñîçäàíèå âåðøèíû ñ çàäàííûì êëþ÷îì
 p_RB_node RB_make_node(int data) {
     p_RB_node rn = malloc(sizeof(RB_node));
 
     if (rn) {
         rn->data = data;
-        rn->red = 1; // 1 - ÐºÑ€Ð°ÑÐ½Ñ‹Ð¹
+        rn->red = 1; // 1 - êðàñíûé
         rn->link[0] = rn->link[1] = NULL;
     }
 
     return rn;
 }
 
-// Ð”Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ð²ÐµÑ€ÑˆÐ¸Ð½Ñ‹
+// Äîáàâëåíèå âåðøèíû
 p_RB_node RB_insert_node(p_RB_node root, int data) {
     if (!root) {
         root = RB_make_node(data);
@@ -50,7 +50,7 @@ p_RB_node RB_insert_node(p_RB_node root, int data) {
 
         root->link[dir] = RB_insert_node(root->link[dir], data);
 
-        // Ð‘Ð°Ð»Ð°Ð½ÑÐ¸Ñ€Ð¾Ð²ÐºÐ°
+        // Áàëàíñèðîâêà
         if (is_red(root->link[dir])) {
             if (is_red(root->link[!dir])) {
                 root->red = 1;
@@ -74,7 +74,7 @@ void RB_insert(p_RB_tree tree, int data) {
     tree->root->red = 0;
 }
 
-// Ð‘Ð°Ð»Ð°Ð½ÑÐ¸Ñ€Ð¾Ð²ÐºÐ° Ð¿Ð¾ÑÐ»Ðµ ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ñ
+// Áàëàíñèðîâêà ïîñëå óäàëåíèÿ
 p_RB_node RB_remove_balance(p_RB_node root, int dir, int *done) {
     p_RB_node p = root;
     p_RB_node s = root->link[!dir];
@@ -122,7 +122,7 @@ p_RB_node RB_remove_balance(p_RB_node root, int dir, int *done) {
     return root;
 }
 
-// Ð£Ð´Ð°Ð»ÐµÐ½Ð¸Ðµ Ð²ÐµÑ€ÑˆÐ¸Ð½Ñ‹
+// Óäàëåíèå âåðøèíû
 p_RB_node RB_remove_node(p_RB_node root, int data, int *done) {
     if (!root) {
         *done = 1;
@@ -178,7 +178,6 @@ void RB_remove(p_RB_tree tree, int data) {
         tree->root->red = 0;
     }
 }
-
 
 void RB_clear(p_RB_node root) {
     if (root) {

@@ -15,7 +15,7 @@ const int MAX_TESTS = 10;
 int main() {
     freopen("out.txt", "w", stdout);
 
-    // Р”РµСЂР°РјРёРґР°
+    // Дерамида
     for (int n = 1; n <= MAX_N; n += STEP) {
         printf("%d ", n);
 
@@ -50,7 +50,7 @@ int main() {
         printf("\n");
     }
 
-    // РђР’Р›
+    // АВЛ
     for (int n = 1; n <= MAX_N; n += STEP) {
         printf("%d ", n);
 
@@ -82,7 +82,7 @@ int main() {
         printf("\n");
     }
 
-    // РљСЂР°СЃРЅРѕ-С‡РµСЂРЅРѕРµ
+    // Красно-черное
     for (int n = 1; n <= MAX_N; n += STEP) {
         printf("%d ", n);
 
@@ -116,3 +116,4 @@ int main() {
 
     return 0;
 }
+

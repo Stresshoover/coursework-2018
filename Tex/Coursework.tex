@@ -1,0 +1,518 @@
+\documentclass[bachelor, och, coursework, times]{SCWorks}
+% параметр - тип обучения - одно из значений:
+%    spec     - специальность
+%    bachelor - бакалавриат (по умолчанию)
+%    master   - магистратура
+% параметр - форма обучения - одно из значений:
+%    och   - очное (по умолчанию)
+%    zaoch - заочное
+% параметр - тип работы - одно из значений:
+%    referat    - реферат
+%    coursework - курсовая работа (по умолчанию)
+%    diploma    - дипломная работа
+%    pract      - отчет по практике
+%    pract      - отчет о научно-исследовательской работе
+%    autoref    - автореферат выпускной работы
+%    assignment - задание на выпускную квалификационную работу
+%    review     - отзыв руководителя
+%    critique   - рецензия на выпускную работу
+% параметр - включение шрифта
+%    times    - включение шрифта Times New Roman (если установлен)
+%               по умолчанию выключен
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+\usepackage{graphicx}
+
+\usepackage[sort,compress]{cite}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{fancyvrb}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage[english,russian]{babel}
+
+
+\usepackage[colorlinks=true]{hyperref}
+
+\begin{document}
+
+% Кафедра (в родительном падеже)
+\chair{математической кибернетики и компьютерных наук}
+
+% Тема работы
+\title{Структуры данных для поиска по ключу. Сравнить как масштабируются разные структуры "--- красно"=черное дерево, дерамида, AVL"=дерево.}
+
+% Курс
+\course{2}
+
+% Группа
+\group{251}
+
+% Факультет (в родительном падеже) (по умолчанию "факультета КНиИТ")
+%\department{факультета КНиИТ}
+
+% Специальность/направление код - наименование
+%\napravlenie{02.03.02 "--- Фундаментальная информатика и информационные технологии}
+%\napravlenie{02.03.01 "--- Математическое обеспечение и администрирование информационных систем}
+%\napravlenie{09.03.01 "--- Информатика и вычислительная техника}
+\napravlenie{09.03.04 "--- Программная инженерия}
+%\napravlenie{10.05.01 "--- Компьютерная безопасность}
+
+% Для студентки. Для работы студента следующая команда не нужна.
+%\studenttitle{Студентки}
+
+% Фамилия, имя, отчество в родительном падеже
+\author{Ромащенко Егора Сергеевича}
+
+% Заведующий кафедрой
+\chtitle{к.\,ф.-м.\,н.} % степень, звание
+\chname{С.\,В.\,Миронов}
+
+%Научный руководитель (для реферата преподаватель проверяющий работу)
+\satitle{доцент, к.\,ф.-м.\,н.} %должность, степень, звание
+\saname{Г.\,Г.\,Наркайтис}
+
+% Руководитель практики от организации (только для практики,
+% для остальных типов работ не используется)
+\patitle{к.\,ф.-м.\,н., доцент}
+\paname{Д.\,Ю.\,Петров}
+
+% Семестр (только для практики, для остальных
+% типов работ не используется)
+\term{2}
+
+% Наименование практики (только для практики, для остальных
+% типов работ не используется)
+\practtype{учебная}
+
+% Продолжительность практики (количество недель) (только для практики,
+% для остальных типов работ не используется)
+\duration{2}
+
+% Даты начала и окончания практики (только для практики, для остальных
+% типов работ не используется)
+\practStart{01.07.2016}
+\practFinish{14.07.2016}
+
+% Год выполнения отчета
+\date{2018}
+
+\maketitle
+
+\tableofcontents
+
+\intro
+Целью данной курсовой работы является изучение структур данных для поиска по ключу, 
+реализация красно"=черного дерева, дерамиды, AVL"=дерева, сравнение масштабируемости данных трех структур.
+
+\section{Классификация структур данных для поиска по ключу}
+Поисковая структура данных "--- любая структура данных реализующая эффективный поиск конкретных элементов множества, например, конкретной записи в базе данных.
+
+Простейшей, наиболее общей, но менее эффективной поисковой структурой является простая неупорядоченная последовательная всех элементов. Расположив элементы в такой список, неизбежно возникнет ряд операций, которые потребуют линейного времени, в худшем случае, а также в среднем случае. Используемые в реальной жизни поисковые структуры данных позволяют совершать операции более быстро, однако они ограничены запросами некоторого конкретного вида. Кроме того, поскольку стоимость построения таких структур пропорциональна количеству исходных элементов, их построение окупится, даже если поступает лишь несколько запросов.
+
+Некоторые структуры данных, позволяющие поиск по ключу:
+\begin{itemize}
+    \item отсортированный по ключам массив\,(бинарный поиск);
+    \item сбалансированные двоичные деревья поиска;
+    \item хеш-таблицы.
+\end{itemize}
+
+Статические поисковые структуры данных предназначены для ответа на запросы на фиксированной базе данных.
+
+Динамические поисковые структуры также позволяют вставки, удаления или модификации элементов между последовательными запросами. В динамическом случае, необходимо также учитывать стоимость изменения структуры данных. Любую динамическую структуру данных можно сделать статической, если запретить вставку и удаление. Также если множество ключей известно, то можно его заранее упорядочить так, чтобы избежать худших случаев в поисках в структурах данных.
+
+Наиболее важная классификация "--- по времени. Мы рассмотрим три структуры данных, которые в среднем отвечают на запросы вставки, удаления, поиска за $O(\log{n})$, где $n$ "---
+количество элементов.
+
+\section{Используемые структуры}
+
+\subsection{AVL-дерево}
+
+АВЛ"=дерево (англ. AVL"=Tree) "--- сбалансированное двоичное дерево поиска, в котором поддерживается следующее свойство: для каждой его вершины высота её двух поддеревьев различается не более чем на $1$.
+
+АВЛ"=деревья названы по первым буквам фамилий их изобретателей, Г. М. Адельсона\,--\,Вельского и Е. М. Ландиса, 
+которые впервые предложили использовать АВЛ"=деревья в 1962 году \cite{I1}.
+
+Обозначим за $h(T)$ высоту дерева $T$. Балансировкой вершины называется операция, которая в случае разницы высот левого и правого поддеревьев $|h(R) - h(L)| = 2$, изменяет связи предок-потомок в поддереве данной вершины так, чтобы восстановилось свойство дерева $|h(R) - h(L)| \leq 1$, иначе ничего не меняет. Для балансировки будем хранить для каждой вершины разницу между высотами её правого и левого поддеревьев \verb"balance" $= h(R) - h(L)$:
+
+\begin{Verbatim}[fontsize=\scriptsize, numbers=left]
+typedef struct AVL_node {
+    int data;
+    // Разность между высотами правого и левого поддеревьев
+    int balance;
+    /* Используем массив из двух указателей(лeвый сын - 0),
+       чтобы избежать симметричных случаев */
+    struct AVL_node *link[2];
+} AVL_node, *p_AVL_node;
+\end{Verbatim}
+
+Для балансировки вершины используются вращения:
+
+\begin{Verbatim}[fontsize=\scriptsize, numbers=left]
+// Функция малого поворота, dir - направление вращения (левый поворот - dir = 0)
+p_AVL_node AVL_single_rot(p_AVL_node root, int dir) {
+    p_AVL_node save = root->link[!dir];
+
+    root->link[!dir] = save->link[dir];
+    save->link[dir] = root;
+
+    return save;
+}
+
+// Большое вращение
+p_AVL_node AVL_double_rot(p_AVL_node root, int dir) {
+    p_AVL_node save = root->link[!dir]->link[dir];
+
+    root->link[!dir]->link[dir] = save->link[!dir];
+    save->link[!dir] = root->link[!dir];
+    root->link[!dir] = save;
+
+    save = root->link[!dir];
+    root->link[!dir] = save->link[dir];
+    save->link[dir] = root;
+
+    return save;
+}
+\end{Verbatim}
+
+И вспомогательные функции:
+
+\begin{Verbatim}[fontsize=\scriptsize, numbers=left]
+// Установка баланса перед большим поворотом
+void adjust_balance(p_AVL_node root, int dir, int bal) {
+    p_AVL_node n = root->link[dir];
+    p_AVL_node nn = n->link[!dir];
+
+    if (nn->balance == 0) {
+        root->balance = n->balance = 0;
+    }
+    else if (nn->balance == bal) {
+        root->balance = -bal;
+        n->balance = 0;
+    }
+    else { // nn->balance == -bal
+        root->balance = 0;
+        n->balance = bal;
+    }
+
+    nn->balance = 0;
+}
+
+// Балансировка после вставки
+p_AVL_node insert_balance(p_AVL_node root, int dir) {
+    p_AVL_node n = root->link[dir];
+    int bal = dir == 0 ? -1 : +1;
+
+    if (n->balance == bal) {
+        root->balance = n->balance = 0;
+        root = AVL_single_rot(root, !dir);
+    }
+    else { // n->balance == -bal
+        adjust_balance(root, dir, bal);
+        root = AVL_double_rot(root, !dir);
+    }
+
+    return root;
+}
+\end{Verbatim}
+
+Функция вставки новой вершины:
+
+\begin{Verbatim}[fontsize=\scriptsize, numbers=left]
+// Добавление вершины
+p_AVL_node insert_node(p_AVL_node root, int data, int *done) {
+    if (!root) {
+        root = AVL_make_node(data);
+    }
+    else {
+        int dir = root->data < data;
+
+        root->link[dir] = insert_node(root->link[dir], data, done);
+
+        if (!*done) {
+            // Обновление баланса
+            root->balance += dir == 0 ? -1 : +1;
+
+            // Балансировка(если нужно) и выход из функции
+            if (root->balance == 0) {
+                *done = 1;
+            }
+            else if (abs(root->balance) > 1) {
+                root = insert_balance(root, dir);
+                *done = 1;
+            }
+        }
+    }
+
+    return root;
+}
+\end{Verbatim}
+
+Так как в процессе добавления вершины мы рассматриваем не более, чем $O(h)$ вершин дерева, и для каждой запускаем балансировку не более одного раза, то суммарное количество операций при включении новой вершины в дерево составляет $O(\log{n})$ операций.
+
+Полный код реализации АВЛ"=дерева приведен в приложении~\ref{pril-1}.
+
+\subsection{Красно-черное дерево}
+
+Красно"=чёрное дерево (англ. red"=black tree) "--- двоичное дерево поиска, в котором баланс осуществляется на основе "цвета" \ узла дерева, который принимает только два значения: "красный"\,(англ. red) и "чёрный"\,(англ. black).
+
+Изобретателем красно"=чёрного дерева считают немца Рудольфа Байера. Название <<красно"=чёрное дерево>> структура данных получила в статье Л. Гимпаса и Р. Седжвика (1978) \cite{I2}.
+
+К красно"=чёрным деревьям применяются следующие требования:
+\begin{itemize}
+    \item узел либо красный, либо чёрный;
+    \item корень "--- чёрный;
+    \item оба потомка каждого красного узла "--- чёрные;
+    \item всякий простой путь от данного узла до любого листового узла, являющегося его потомком, содержит одинаковое число чёрных узлов.
+\end{itemize}
+
+Чтобы поддерживать баланс для каждой вершины будем хранить её цвет:
+
+\begin{Verbatim}[fontsize=\scriptsize, numbers=left]
+typedef struct RB_node {
+    int red; // Цвет (1 = вершина красная) 
+    int data;
+    /* Используем массив из двух указателей(лeвый сын - 0),
+       чтобы избежать симметричных случаев */
+    struct RB_node *link[2];
+} RB_node, *p_RB_node;
+\end{Verbatim}
+
+Для балансировки при вставке новой вершины используются вращения:
+
+\begin{Verbatim}[fontsize=\scriptsize, numbers=left]
+// Функция малого поворота, dir - направление вращения (левый поворот - dir = 0):
+p_RB_node RB_single_rot(p_RB_node root, int dir) {
+    p_RB_node save = root->link[!dir];
+
+    root->link[!dir] = save->link[dir];
+    save->link[dir] = root;
+
+    root->red = 1;
+    save->red = 0;
+
+    return save;
+}
+
+// Большое вращение
+p_RB_node RB_double_rot(p_RB_node root, int dir) {
+    root->link[!dir] = RB_single_rot(root->link[!dir], !dir);
+
+    return RB_single_rot(root, dir);
+}
+\end{Verbatim}
+
+Функция вставки новой вершины:
+
+\begin{Verbatim}[fontsize=\scriptsize, numbers=left]
+// Добавление вершины
+p_RB_node RB_insert_node(p_RB_node root, int data) {
+    if (!root) {
+        root = RB_make_node(data);
+    }
+    else if (data != root->data) {
+        int dir = root->data < data;
+
+        root->link[dir] = RB_insert_node(root->link[dir], data);
+
+        // Балансировка
+        if (is_red(root->link[dir])) {
+            if (is_red(root->link[!dir])) {
+                root->red = 1;
+                root->link[0]->red = 0;
+                root->link[1]->red = 0;
+            } else {
+                if (is_red(root->link[dir]->link[dir])) {
+                    root = RB_single_rot(root, !dir);
+                } else if (is_red(root->link[dir]->link[!dir])) {
+                    root = RB_double_rot(root, !dir);
+                }
+            }
+        }
+    }
+
+    return root;
+}
+\end{Verbatim}
+
+Так как в процессе добавления вершины мы рассматриваем не более, чем $O(h)$ вершин дерева, и для каждой запускаем вращения не более одного раза, 
+то суммарное количество операций "--- $O(\log{n})$.
+
+Полный код реализации красно"=чёрного дерева приведен в приложении~\ref{pril-2}.
+
+\subsection{Дерамида}
+
+Декартово дерево "--- это структура данных, объединяющая в себе бинарное дерево поиска и бинарную кучу (отсюда и второе её название: treap (tree + heap) и дерамида (дерево + пирамида)).
+
+Более строго, это структура данных, которая хранит пары $(x, y)$ в виде бинарного дерева таким образом, что она является бинарным деревом поиска по $x$ и бинарной пирамидой по $y$. Предполагая, что все $x$ и все $y$ являются различными, получаем, что если некоторый элемент дерева содержит $(x_0, y_0)$, то у всех элементов в левом поддереве $x < x_0$, у всех элементов в правом поддереве $x > x_0$, а также и в левом, и в правом поддереве имеем: $y < y_0$.
+
+Дерамиды были предложены Сиделем (Siedel) и Арагон (Aragon) в 1989 г \cite{I3}.
+
+С точки зрения реализации, каждый элемент содержит в себе $x$\,(\verb"key"), $y$\,(\verb"prior") и указатели на левого \verb"l" и правого \verb"r" сына:
+
+\begin{Verbatim}[fontsize=\scriptsize, numbers=left]
+typedef struct treap_item {
+    int key, prior;
+    struct treap_item *l, *r;
+} item, *p_item;
+\end{Verbatim}
+
+Для реализации процедуры добавления нового элемента понадобится вспомогательная операция \verb"split":
+
+\begin{Verbatim}[fontsize=\scriptsize, numbers=left]
+/* Разделяет дерево t на два дерева l и r (которые являются возвращаемым значением) таким образом, 
+   что l содержит все элементы, меньшие по ключу key, а r содержит все элементы, большие key. */
+void split(p_item t, int key, p_item *l, p_item *r) {
+    if (!t) {
+        *l = *r = NULL;
+    }
+    else if (key < t->key) {
+        split(t->l, key, l, &t->l);
+        *r = t;
+    }
+    else {
+        split(t->r, key, &t->r, r);
+        *l = t;
+    }
+}
+\end{Verbatim}
+
+Во время выполнения вызывается одна операция \verb"split" для дерева хотя бы на один меньшей высоты и делается ещё $O(1)$ операций. Тогда итоговая трудоёмкость этой операции равна $O(h)$, где $h$ "--- высота дерева.
+
+\begin{Verbatim}[fontsize=\scriptsize, numbers=left]
+Функция вставки новой вершины (за O (log N) в среднем):
+// Добавление вершины
+void insert(p_item *t, p_item it) {
+    if (!*t) {
+        *t = it;
+    }
+    else if (it->prior > (*t)->prior){
+        split(*t, it->key, &it->l, &it->r);
+        *t = it;
+    }
+    else {
+        insert(it->key < (*t)->key ? &(*t)->l : &(*t)->r, it);
+    }
+}
+\end{Verbatim}
+
+В декартовом дереве из $n$ вершин, приоритеты y которого являются случайными величинами c равномерным распределением, средняя глубина вершины $O(\log{n})$, а значит добавление нового элемента будет в среднем работать за $O(\log{n})$.
+
+Полный код реализации дерамиды приведен в приложении~\ref{pril-3}.
+
+\section{Сравнение структур}
+Сравним время работы функций вставки используемых структур. 
+Для \verb"n" от \verb"1" до \verb"MAX_N" (с шагом \verb"STEP") \verb"MAX_TESTS" раз сгенерируем массив из \verb"n" элементов 
+и вставим его в структуру. 
+Замерим время работы вставки всего массива и возьмем среднее $t$.
+В результат запишем $\frac{t}{n}$.
+
+\begin{Verbatim}[fontsize=\scriptsize, numbers=left]
+// АВЛ
+for (int n = 1; n <= MAX_N; n += STEP) {
+    printf("%d ", n);
+
+    for (int test = 0; test < MAX_TESTS; test++) {
+        srand(time(NULL));
+
+        int *a = malloc(n * sizeof(int));
+
+        for (int i = 0; i < n; ++i) {
+            a[i] = rand();
+        }
+
+        p_AVL_tree tree = malloc(sizeof(AVL_tree));
+        tree->root = NULL;
+
+        clock_t time = clock();
+
+        for (int i = 0; i < n; ++i) {
+            AVL_insert(tree, a[i]);
+        }
+
+        printf("%f ", (double) (clock() - time) / CLOCKS_PER_SEC);
+
+        AVL_clear(tree->root);
+        free(tree);
+        free(a);
+    }
+
+    printf("\n");
+}
+\end{Verbatim}
+
+Полный код тестирования используемых структур приведен в приложении~\ref{pril-4}.
+
+Полученные результаты тестирования представлены на рисунке~\ref{fig_1}.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=16cm]{Figure_1.png}
+	\caption{\label{fig_1}%
+	Зависимость времени вставки от количества элементов}
+\end{figure}
+
+
+\conclusion
+В ходе данной курсовой работы были изучены структуры данных для поиска по ключу, 
+реализованы: красно"=черное дерево, дерамида, AVL"=дерево, было проведено сравнение времени работы 
+функции вставки данных структур.
+
+%Библиографический список, составленный вручную, без использования BibTeX
+%
+\begin{thebibliography}{99}
+  \bibitem{I1} АВЛ-дерево - Викиконспекты [Электронный ресурс]. — URL: \href{https://neerc.ifmo.ru/wiki/index.php?title=АВЛ-дерево}{https://neerc.ifmo.ru/wiki/index.php?title=АВЛ-дерево} (Дата обращения 02.05.2018). Загл. с экр. Яз. рус.
+  \bibitem{I2} Красно-черное дерево - Викиконспекты [Электронный ресурс]. — URL: \href{https://neerc.ifmo.ru/wiki/index.php?title=Красно-черное_дерево}{https://neerc.ifmo.ru/wiki/index.php?title=Красно-черное\_дерево} (Дата обращения 02.05.2018). Загл. с экр. Яз. рус.
+  \bibitem{I3} Декартово дерево (treap, дерамида) - E-maxx.ru [Электронный ресурс]. — URL: \href{http://e-maxx.ru/algo/treap}{http://e-maxx.ru/algo/treap} (Дата обращения 02.05.2018). Загл. с экр. Яз. рус.
+  \bibitem{I4} AVL Trees - Eternally Confuzzled [Электронный ресурс]. — URL: \href{http://www.eternallyconfuzzled.com/tuts/datastructures/jsw_tut_avl.aspx}{http://www.eternallyconfuzzled.com/tuts/datastructures/jsw\_tut\_avl.aspx} (Дата обращения 02.05.2018). Загл. с экр. Яз. англ.
+  \bibitem{I5} Red Black Trees - Eternally Confuzzled [Электронный ресурс]. — URL: \href{http://www.eternallyconfuzzled.com/tuts/datastructures/jsw_tut_rbtree.aspx}{http://www.eternallyconfuzzled.com/tuts/datastructures/jsw\_tut\_rbtree.aspx} (Дата обращения 02.05.2018). Загл. с экр. Яз. англ.
+	\bibitem{I6} Красно-черные деревья - AlgoList [Электронный ресурс]. — URL: \href{http://algolist.manual.ru/ds/rbtree.php}{http://algolist.manual.ru/ds/rbtree.php} (Дата обращения 02.05.2018). Загл. с экр. Яз. рус.
+	\bibitem{I7} Красно-чёрные деревья (Red black trees) - rfLinux [Электронный ресурс]. — URL: \href{http://rflinux.blogspot.ru/2011/10/red-black-trees.html}{http://rflinux.blogspot.ru/2011/10/red-black-trees.html} (Дата обращения 02.05.2018). Загл. с экр. Яз. рус.
+	\bibitem{I8} АВЛ-деревья / Хабр - Habrahabr [Электронный ресурс]. — URL: \href{https://habr.com/post/150732/}{https://habr.com/post/150732/} (Дата обращения 02.05.2018). Загл. с экр. Яз. рус.
+	\bibitem{I9}\textit{Cormen T. H.}, Introduction to Algorithms (3rd ed.) / T. H. Cormen. — MIT Press, 2009.
+	\bibitem{I10}\textit{Knuth D.}, The Art of Computer Programming / D. Knuth. — Addison-Wesley, 1968.
+\end{thebibliography}
+
+%Библиографический список, составленный с помощью BibTeX
+%
+%\bibliographystyle{gost780uv}
+%\bibliography{thesis}
+
+% Окончание основного документа и начало приложений
+% Каждая последующая секция документа будет являться приложением
+\appendix
+
+\section{Реализация AVL-дерева}\label{pril-1}
+Код заголовочного файла \verb"AVL.h".
+
+\VerbatimInput[fontsize=\scriptsize, numbers=left, numbersep=2pt]{AVL.h}
+
+Код файла \verb"AVL.c".
+
+\VerbatimInput[fontsize=\scriptsize, numbers=left, numbersep=2pt]{AVL.c}
+
+\section{Реализация красно-черного дерева}\label{pril-2}
+Код заголовочного файла \verb"RB.h".
+
+\VerbatimInput[fontsize=\scriptsize, numbers=left, numbersep=2pt]{RB.h}
+
+Код файла \verb"RB.c".
+
+\VerbatimInput[fontsize=\scriptsize, numbers=left, numbersep=2pt]{RB.c}
+
+\section{Реализация дерамиды}\label{pril-3}
+Код заголовочного файла \verb"treap.h".
+
+\VerbatimInput[fontsize=\scriptsize, numbers=left, numbersep=2pt]{treap.h}
+
+Код файла \verb"treap.c".
+
+\VerbatimInput[fontsize=\scriptsize, numbers=left, numbersep=2pt]{treap.c}
+
+\section{Тестирование структур}\label{pril-4}
+Код файла \verb"main.c".
+
+\VerbatimInput[fontsize=\scriptsize, numbers=left, numbersep=2pt]{main.c}
+
+\end{document}
